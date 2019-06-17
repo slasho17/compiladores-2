@@ -62,7 +62,7 @@ public class Lexer {
     }
 
     public void skipToNextStatement() {
-        while ( token != Symbol.EOF && token != Symbol.ELSE && token != Symbol.ENDIF && token != Symbol.END && token != Symbol.SEMICOLON )
+        while ( token != Symbol.EOF && token != Symbol.ELSE && token != Symbol.SEMICOLON )
             nextToken();
         if ( token == Symbol.SEMICOLON )
             nextToken();
@@ -118,11 +118,8 @@ public class Lexer {
                }
                nextToken();
             } else {
-                int contadorDeAspas = 0;
-
                 if (ch == '\"') {
                     StringBuffer stringLiteral = new StringBuffer();
-                    contadorDeAspas++;
                     tokenPos++;
 
                     while (input[tokenPos] != '\"') {
@@ -288,18 +285,10 @@ public class Lexer {
 
                             default :
                                 error.signal("Invalid Character: '" + ch + "'");
-
-
-
-
-
-
                         }
                     }
                 }
-
             }
-
         }
 
         lastTokenPos = tokenPos - 1;
@@ -372,9 +361,6 @@ public class Lexer {
     public char getCharValue() {
         return charValue;
     }
-
-
-
     //atributos:
 
     //token atual

@@ -43,12 +43,16 @@ public enum Symbol {
     AND("and"),
     LEFTBRACK("["),
     RIGHTBRACK("]"),
+    WRITELN("writeln"),
+    WRITE("write"),
+    READINT("readInt"),
+    READSTRING("readString"),
     RETURN("return");
 
     Symbol(String name) {
         this.name = name;
     }
-    
+
     public String toString() { return name; }
     public String name;
 }
