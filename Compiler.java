@@ -31,6 +31,7 @@ public class Compiler {
         lexer.nextToken();
         return program();
     }
+
     private Program program() {
 
         // Program ::= Func {Func}
@@ -53,7 +54,7 @@ public class Compiler {
     	Boolean isIdent = true;
     	String id = "";
     	Type type = null;
-      Function f = null;
+        Function f = null;
 
     	for (Symbol c : Symbol.values()) {
             if (c.name().equals(lexer.token)) {
@@ -63,11 +64,20 @@ public class Compiler {
 
     	if(isIdent) {
     		id = lexer.getStringValue();
-        f = new Function(id);
+            
+            Object fu = symbolTable.getInGlobal(id);
+
+            if (fu != null) {
+                error.signal("identifier " + id + " already exists");
+            }
+            
+            f = new Function(id);
+
+            // coloca o identificador da funcao na hashtable
+            symbolTable.putsInGlobal(id, f);
+
     		lexer.nextToken();
-
-
-        if(lexer.token == Symbol.LEFTPAR) {
+            if(lexer.token == Symbol.LEFTPAR) {
     			lexer.nextToken();
     			f.setParamList(paramList());
 
@@ -85,12 +95,12 @@ public class Compiler {
     		lexer.nextToken();
             type = type();
     	}
-			f.setReturnType(type);
+		f.setReturnType(type);
+        f.setStatList(statList());
 
-      f.setStatList(statList());
+        symbolTable.removeLocalIdent();
 
     	return f;
-
     }
 
     private ParamList paramList() {
@@ -129,9 +139,16 @@ public class Compiler {
             lexer.nextToken();
         }
 
-        Parameter param = new Parameter(name);
-        param.setType(type());
-        paramList.addElement(param);
+        Object p = symbolTable.get(name);
+        if (p != null){
+            error.signal("parameter " + name + " already exists");
+        }
+        else{
+            Parameter param = new Parameter(name);
+            param.setType(type());
+            paramList.addElement(param);
+            symbolTable.putsInLocal(name, param);
+        }
     }
 
     private Type type() {
@@ -263,6 +280,12 @@ public class Compiler {
         } else {
             id = lexer.getStringValue();
             lexer.nextToken();
+            Object p = symbolTable.get(id);
+            if (p != null){
+                error.signal("variable " + id + " already exists");
+            } else {
+                symbolTable.putsInLocal(id, p);
+            }
         }
 
         if (lexer.token != Symbol.COLON) {
@@ -270,6 +293,8 @@ public class Compiler {
         } else {
             lexer.nextToken();
         }
+
+
 
         v = new Variable(id);
         type = type();
@@ -455,12 +480,11 @@ public class Compiler {
         return new ExprLiteralBoolean(value);
     }
 
-    private FuncCall funcCall() {
+    private FuncCall funcCall(String name) {
         // FuncCall ::= Id "(" [ Expr {”, ”Expr} ] ")"
         ArrayList<Expr> exprList = new ArrayList<Expr>();
         Expr e = null;
-        String name = lexer.getStringValue();
-
+        
         if (lexer.token != Symbol.LEFTPAR) {
             error.signal("( expected");
         }
@@ -487,16 +511,30 @@ public class Compiler {
             lexer.nextToken();
 
         }
-
         return new FuncCall(name, exprList);
     }
 
     private Expr exprId() {
         String name = lexer.getStringValue();
         lexer.nextToken();
+
+        // Se for funcCall
         if (lexer.token == Symbol.LEFTPAR) {
-            return funcCall();
+            // Verifica se funcao foi declarada
+            if (symbolTable.getInGlobal(name) == null) {
+                error.signal("function" + name + "was not declared");
+            }
+
+            return funcCall(name);
         }
+        
+        // Se for exprId
+
+        Object id = symbolTable.getInLocal(name);
+        if (id == null){
+            error.signal("identifier " + name + " doesn't exists");
+        }
+
         return new ExprIdentifier(name);
     }
 
@@ -507,7 +545,6 @@ public class Compiler {
             e = expr();
             if(!(e instanceof ExprLiteralInt) && !(e instanceof ExprLiteralString))
                 error.signal("type not allowed");
-            }
         }
         else error.signal("left par expected");
         return new WriteLn(e);

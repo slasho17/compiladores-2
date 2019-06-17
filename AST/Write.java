@@ -11,9 +11,6 @@ public class Write extends Statement {
     public Write(Expr e){
       this.e = e;
     }
-    public void setExpr(Expr e){
-      this.e = e;
-    }
 
     public void genC();
 }

@@ -11,9 +11,6 @@ public class WriteLn extends Statement {
     public WriteLn(Expr e){
       this.e = e;
     }
-    public void setExpr(Expr e){
-      this.e = e;
-    }
 
     public void genC();
 }
