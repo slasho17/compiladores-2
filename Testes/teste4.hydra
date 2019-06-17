@@ -1,0 +1,12 @@
+function imprima(before: Int, valor: Int, after: String) {
+	var i : Int;
+	i = 0;
+	while i < before {
+		write(1);
+		i = i + 1;
+	}
+	writeln(1);
+	wirteln(valor);
+	writeln(after);
+}
+
