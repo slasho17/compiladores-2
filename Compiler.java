@@ -411,11 +411,10 @@ public class Compiler {
                 return exprLiteralBoolean();
             case IDENT: // Sera uma variavel simples ou uma chamada de funcao
                 return exprId();
-						case READINT:
-								return readInt();
-						case READSTRING:
-								return readString();
-
+            case READINT:
+                return readInt();
+            case READSTRING:
+                return readString();
 
             default:
                 error.signal("Statement expected se pa");
@@ -501,50 +500,54 @@ public class Compiler {
         return new ExprIdentifier(name);
     }
 
-		private Statement writeLn() {
+    private Statement writeLn() {
         lexer.nextToken();
-				Expr e = null;
+        Expr e = null;
         if (lexer.token == Symbol.LEFTPAR) {
             e = expr();
+            if(!(e instanceof ExprLiteralInt) && !(e instanceof ExprLiteralString))
+                error.signal("type not allowed");
+            }
         }
-				else error.signal("left par expected");
-				return new WriteLn(e);
+        else error.signal("left par expected");
+        return new WriteLn(e);
     }
 
-		private Statement write() {
+    private Statement write() {
         lexer.nextToken();
-				Expr e = null;
-				if (lexer.token == Symbol.LEFTPAR) {
+        Expr e = null;
+        if (lexer.token == Symbol.LEFTPAR) {
             e = expr();
+            if(!(e instanceof ExprLiteralInt) && !(e instanceof ExprLiteralString))
+                error.signal("type not allowed");
         }
-				else error.signal("left par expected");
-				return new Write(e);
-		}
+        else error.signal("left par expected");
+        return new Write(e);
+    }
 
-		private Expr readInt() {
-				lexer.nextToken();
-				if (lexer.token == Symbol.LEFTPAR) {
-					lexer.nextToken();
-					if(lexer.token == Symbol.RIGHTPAR)
-						lexer.nextToken();
-					else
-					error.signal("right par expected");
-				}
-				else error.signal("left par expected");
-				return new ReadInt();
-		}
+    private Expr readInt() {
+        lexer.nextToken();
+        if (lexer.token == Symbol.LEFTPAR) {
+            lexer.nextToken();
+            if(lexer.token == Symbol.RIGHTPAR)
+                lexer.nextToken();
+            else
+                error.signal("right par expected");
+        }
+        else error.signal("left par expected");
+        return new ReadInt();
+    }
 
-		private Expr readString() {
-				lexer.nextToken();
-				if (lexer.token == Symbol.LEFTPAR) {
-					lexer.nextToken();
-					if(lexer.token == Symbol.RIGHTPAR)
-						lexer.nextToken();
-					else
-					error.signal("right par expected");
-				}
-				else error.signal("left par expected");
-				return new ReadString();
-		}
-
+    private Expr readString() {
+        lexer.nextToken();
+        if (lexer.token == Symbol.LEFTPAR) {
+            lexer.nextToken();
+            if(lexer.token == Symbol.RIGHTPAR)
+                lexer.nextToken();
+            else
+                error.signal("right par expected");
+        }
+        else error.signal("left par expected");
+        return new ReadString();
+    }
 }
