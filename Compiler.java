@@ -12,12 +12,18 @@ import auxcomp.*;
 
 public class Compiler {
 
-	private Hashtable<String, Variable> symbolTable;
+	private SymbolTable symbolTable;
 	private Lexer lexer;
 	private CompilerError error;
 
     public Program compile( char []input) {
-        symbolTable = new Hashtable<String, Variable>();
+			// analise semantica
+        symbolTable = new SymbolTable();
+
+				// bruno veja isto, nos vamos ter um expr e um set expr que vai atribuir este expr, entao toda vez que
+				// chamarmos os writers, vamos setar uma expr e no gen c, vamos chamar o genc dos writers e o genc dos expr
+				// gambiarra monstra
+
 
         error = new CompilerError(lexer);
         lexer = new Lexer(input, error);
@@ -25,7 +31,6 @@ public class Compiler {
         lexer.nextToken();
         return program();
     }
-
     private Program program() {
 
         // Program ::= Func {Func}
@@ -48,7 +53,7 @@ public class Compiler {
     	Boolean isIdent = true;
     	String id = "";
     	Type type = null;
-        Function f = null;
+      Function f = null;
 
     	for (Symbol c : Symbol.values()) {
             if (c.name().equals(lexer.token)) {
@@ -58,11 +63,11 @@ public class Compiler {
 
     	if(isIdent) {
     		id = lexer.getStringValue();
-            f = new Function(id);
+        f = new Function(id);
     		lexer.nextToken();
 
 
-            if(lexer.token == Symbol.LEFTPAR) {
+        if(lexer.token == Symbol.LEFTPAR) {
     			lexer.nextToken();
     			f.setParamList(paramList());
 
@@ -79,10 +84,10 @@ public class Compiler {
     	if(lexer.token == Symbol.ARROW) {
     		lexer.nextToken();
             type = type();
-            f.setReturnType(type);
     	}
+			f.setReturnType(type);
 
-        f.setStatList(statList());
+      f.setStatList(statList());
 
     	return f;
 
@@ -197,7 +202,12 @@ public class Compiler {
             case IF :
                 return IfStat();
             case WHILE:
-                return whileStat();
+            		return whileStat();
+						case WRITELN:
+								return writeLn();
+						case WRITE:
+								return write();
+
             default :
                 error.signal("Statement expected while");
         }
@@ -401,6 +411,10 @@ public class Compiler {
                 return exprLiteralBoolean();
             case IDENT: // Sera uma variavel simples ou uma chamada de funcao
                 return exprId();
+						case READINT:
+								return readInt();
+						case READSTRING:
+								return readString();
 
 
             default:
@@ -480,14 +494,57 @@ public class Compiler {
 
     private Expr exprId() {
         String name = lexer.getStringValue();
-
         lexer.nextToken();
-
         if (lexer.token == Symbol.LEFTPAR) {
             return funcCall();
         }
-
         return new ExprIdentifier(name);
     }
+
+		private Statement writeLn() {
+        lexer.nextToken();
+				Expr e = null;
+        if (lexer.token == Symbol.LEFTPAR) {
+            e = expr();
+        }
+				else error.signal("left par expected");
+				return new WriteLn(e);
+    }
+
+		private Statement write() {
+        lexer.nextToken();
+				Expr e = null;
+				if (lexer.token == Symbol.LEFTPAR) {
+            e = expr();
+        }
+				else error.signal("left par expected");
+				return new Write(e);
+		}
+
+		private Expr readInt() {
+				lexer.nextToken();
+				if (lexer.token == Symbol.LEFTPAR) {
+					lexer.nextToken();
+					if(lexer.token == Symbol.RIGHTPAR)
+						lexer.nextToken();
+					else
+					error.signal("right par expected");
+				}
+				else error.signal("left par expected");
+				return new ReadInt();
+		}
+
+		private Expr readString() {
+				lexer.nextToken();
+				if (lexer.token == Symbol.LEFTPAR) {
+					lexer.nextToken();
+					if(lexer.token == Symbol.RIGHTPAR)
+						lexer.nextToken();
+					else
+					error.signal("right par expected");
+				}
+				else error.signal("left par expected");
+				return new ReadString();
+		}
 
 }

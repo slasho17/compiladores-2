@@ -10,19 +10,16 @@ import java.io.*;
 
 
 public class Function {
-
 	//atributos:
 	private String id;
 	private Type type;
 	private ParamList paramList;
 	private StatementList statList;
 
-
 	//metodos:
 	public Function( String Id ) {
       this.id = Id;
 			//this.statList = new ArrayList<Stat>;
-
   }
 
 	public void setReturnType(Type x){
@@ -41,20 +38,15 @@ public class Function {
 		this.paramList = paramlist;
 	}
 
-public ParamList getParamList(){
-	return this.paramList;
-}
+	public ParamList getParamList(){
+		return this.paramList;
+	}
 
 	public void setStatList(StatementList statlist){
 		this.statList = statlist;
 	}
 
-
   public void genC() {
-		  
 		this.statList.genC();
-	
   }
-
-
 }

@@ -14,10 +14,10 @@ public class SymbolTable{
         localTable = new Hashtable();
     }
 
-    //Hash_Table.put(key, value): if an existing key is passed then the previous value gets replaced by the new value. 
-    //If a new pair is passed, then the pair gets inserted as a whole. 
+    //Hash_Table.put(key, value): if an existing key is passed then the previous value gets replaced by the new value.
+    //If a new pair is passed, then the pair gets inserted as a whole.
     //If an existing key is passed then the previous value gets returned, else returns null.
-    
+
     public Object putsInGlobal( String key, Object value){
         return globalTable.put(key, value);
     }
@@ -32,7 +32,7 @@ public class SymbolTable{
     public Object getInLocal( Object key ) {
         return localTable.get(key);
     }
-    
+
     public Object getInGlobal( Object key ) {
         return globalTable.get(key);
     }
@@ -52,6 +52,4 @@ public class SymbolTable{
     public void removeLocalIdent(){
         localTable.clear();
     }
-
-
 }
