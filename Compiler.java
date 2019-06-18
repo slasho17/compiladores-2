@@ -184,12 +184,15 @@ public class Compiler {
         } else {
             lexer.nextToken();
         }
-
-        int rolaCount = 1;
         while ((tkn = lexer.token) != Symbol.CLOSEBRACE && tkn != Symbol.EOF) {
-            v.add(stat());
-        }
+            if(lexer.token == Symbol.SEMICOLON){
+                lexer.nextToken();
+            }
+            if(lexer.token != Symbol.CLOSEBRACE){
+                v.add(stat());
+            }
 
+        }
         if (tkn != Symbol.CLOSEBRACE) {
             error.signal("} expected");
         } else {
@@ -201,6 +204,7 @@ public class Compiler {
 
     private Statement stat() {
         // Stat ::= AssignExprStat| ReturnStat | VarDecStat | IfStat | WhileStat
+        
         switch (lexer.token) {
             case IDENT :
                 return assignExprStat();
@@ -219,14 +223,14 @@ public class Compiler {
             case IF :
                 return IfStat();
             case WHILE:
-            		return whileStat();
-						case WRITELN:
-								return writeLn();
-						case WRITE:
-								return write();
+                return whileStat();
+            case WRITELN:
+                return writeLn();
+            case WRITE:
+                return write();
 
             default :
-                error.signal("Statement expected while");
+                error.signal("Statement expected");
         }
         return null;
     }
@@ -273,7 +277,6 @@ public class Compiler {
         Variable v = null;
         String id = null;
         Type type = null;
-
         lexer.nextToken();
         if (lexer.token != Symbol.IDENT) {
             error.signal("Identifier expected");
@@ -283,8 +286,6 @@ public class Compiler {
             Object p = symbolTable.get(id);
             if (p != null){
                 error.signal("variable " + id + " already exists");
-            } else {
-                symbolTable.putsInLocal(id, p);
             }
         }
 
@@ -294,11 +295,10 @@ public class Compiler {
             lexer.nextToken();
         }
 
-
-
         v = new Variable(id);
         type = type();
         v.setType(type);
+        symbolTable.putsInLocal(id, v);
 
         if (lexer.token != Symbol.SEMICOLON) {
             error.signal("; expected");
@@ -410,7 +410,6 @@ public class Compiler {
     private Expr exprUnary() {
         // ExprUnary ::= [ ( "+" | "-" ) ] ExprPrimary
         Symbol op = null;
-
         if (lexer.token == Symbol.PLUS || lexer.token == Symbol.MINUS) {
             op = lexer.token;
             lexer.nextToken();
@@ -522,7 +521,7 @@ public class Compiler {
         if (lexer.token == Symbol.LEFTPAR) {
             // Verifica se funcao foi declarada
             if (symbolTable.getInGlobal(name) == null) {
-                error.signal("function" + name + "was not declared");
+                error.signal("function " + name + " was not declared");
             }
 
             return funcCall(name);
@@ -542,11 +541,14 @@ public class Compiler {
         lexer.nextToken();
         Expr e = null;
         if (lexer.token == Symbol.LEFTPAR) {
+            lexer.nextToken();
             e = expr();
-            if(!(e instanceof ExprLiteralInt) && !(e instanceof ExprLiteralString))
-                error.signal("type not allowed");
+            //if(!(e instanceof ExprLiteralInt) && !(e instanceof ExprLiteralString))
+              //  error.signal("type not allowed");
         }
         else error.signal("left par expected");
+        if( lexer.token != Symbol.RIGHTPAR) error.signal("right par expected");
+        lexer.nextToken();
         return new WriteLn(e);
     }
 
@@ -554,11 +556,15 @@ public class Compiler {
         lexer.nextToken();
         Expr e = null;
         if (lexer.token == Symbol.LEFTPAR) {
+            lexer.nextToken();
             e = expr();
-            if(!(e instanceof ExprLiteralInt) && !(e instanceof ExprLiteralString))
-                error.signal("type not allowed");
+           // if(!(e instanceof Expr) && !(e instanceof ExprLiteralString))
+             //   error.signal("type not allowed");
         }
         else error.signal("left par expected");
+        if( lexer.token != Symbol.RIGHTPAR) error.signal("right par expected");
+        lexer.nextToken();
+
         return new Write(e);
     }
 

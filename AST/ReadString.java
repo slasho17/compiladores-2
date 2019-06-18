@@ -7,7 +7,14 @@ package AST;
 
 public class ReadString extends Expr {
     public ReadString(){
-      this.setType(new StringType());
+
     }
-    public void genC();
+
+    public Type getType(){
+      return Type.stringType;
+    }
+    
+    public void genC(){
+
+    }
 }

@@ -43,8 +43,8 @@ public enum Symbol {
     AND("and"),
     LEFTBRACK("["),
     RIGHTBRACK("]"),
-    WRITELN("writeln"),
     WRITE("write"),
+    WRITELN("writeln"),
     READINT("readInt"),
     READSTRING("readString"),
     RETURN("return");

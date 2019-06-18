@@ -1,0 +1,24 @@
+function fatorial(n : Int) -> Int {
+	if n <= 0 {
+		return 1;
+	}
+	else {
+		return n*fatorial(n-1);
+
+	}
+}
+
+function imprima(before: Int, valor: Int, after: String){
+	var i : Int ;
+	i = 0;
+	while i < before{
+		write("*");
+		i = i + 1;
+	}
+	writeln("a");
+	writeln(valor);
+	writeln(after);	
+}
+	function main {
+		imprima(50, fatorial(5)*2*fatorial(3), "      fim ");
+	}

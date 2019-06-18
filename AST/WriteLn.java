@@ -12,5 +12,7 @@ public class WriteLn extends Statement {
       this.e = e;
     }
 
-    public void genC();
+    public void genC(){
+      
+    }
 }

@@ -89,6 +89,10 @@ public class Lexer {
         keywordsTable.put( "or", Symbol.OR );
         keywordsTable.put( "and", Symbol.AND );
         keywordsTable.put( "return", Symbol.RETURN);
+        keywordsTable.put( "write", Symbol.WRITE);
+        keywordsTable.put( "writeln", Symbol.WRITELN);
+        keywordsTable.put( "readInt", Symbol.READINT);
+        keywordsTable.put( "readString", Symbol.READSTRING);
     }
 
 
@@ -129,6 +133,8 @@ public class Lexer {
 
                         stringLiteral.append(input[tokenPos]);
                         tokenPos++;
+                        System.out.println(input[tokenPos]);
+
                     }
                     tokenPos++;
 
@@ -142,6 +148,7 @@ public class Lexer {
 
                         StringBuffer identificador =  new StringBuffer();
 
+                     
                         //vou colocando char por char dentro da string do identificador
                         while(Character.isLetter(input[tokenPos])){
                             identificador.append(input[tokenPos]);
