@@ -4,6 +4,10 @@ Luiz Felipe Guimarães - 743570
 Thiago Borges - 613770*/
 
 package AST;
+import java.io.*;
+import Lexer.*;
+import java.util.*;
+
 
 public class AssignExprStatement extends Statement {
 

@@ -7,7 +7,14 @@ package AST;
 
 public class ReadInt extends Expr {
     public ReadInt(){
-      this.setType(new IntegerType());
+      
     }
-    public void genC();
+
+    public Type getType(){
+      return Type.integerType;
+    }
+    
+    public void genC(){
+
+    }
 }

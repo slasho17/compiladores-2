@@ -41,7 +41,7 @@ public class CompilerError {
 
 		System.out.println( strMessage );
 		System.out.flush();
-		if ( out.checkError() )
+		if ( System.out.checkError() )
 			System.out.println("Error in signaling an error");
 		thereWasAnError = true;
 
