@@ -8,5 +8,5 @@ package AST;
 abstract public class Expr {
     
     abstract public void genC();
-
+    abstract public Type getType();
 }

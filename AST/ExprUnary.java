@@ -26,4 +26,8 @@ public class ExprUnary extends Expr {
     }
   }
 
+  public Type getType() {
+    return e.getType();
+  }
+
 }

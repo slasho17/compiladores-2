@@ -130,7 +130,7 @@ public class Compiler {
             error.signal("Identifier expected");
         }
 
-        String name = (String) lexer.getStringValue();
+        String name = lexer.getStringValue();
         lexer.nextToken();
 
         if (lexer.token != Symbol.COLON) {
@@ -473,7 +473,7 @@ public class Compiler {
             error.signal("Boolean expected");
         }
 
-        boolean value = false; // #IMPLEMENTAR LEXER
+        boolean value = false;
         lexer.nextToken();
 
         return new ExprLiteralBoolean(value);
@@ -528,13 +528,12 @@ public class Compiler {
         }
         
         // Se for exprId
-
-        Object id = symbolTable.getInLocal(name);
+        Variable id = (Variable) symbolTable.getInLocal(name);
         if (id == null){
             error.signal("identifier " + name + " doesn't exists");
         }
 
-        return new ExprIdentifier(name);
+        return new ExprIdentifier(name, id.getType());
     }
 
     private Statement writeLn() {
@@ -543,8 +542,8 @@ public class Compiler {
         if (lexer.token == Symbol.LEFTPAR) {
             lexer.nextToken();
             e = expr();
-            //if(!(e instanceof ExprLiteralInt) && !(e instanceof ExprLiteralString))
-              //  error.signal("type not allowed");
+            if(e.getType().getTypeName() != "Int" && e.getType().getTypeName() != "String")
+                error.signal("type not allowed");
         }
         else error.signal("left par expected");
         if( lexer.token != Symbol.RIGHTPAR) error.signal("right par expected");
@@ -558,8 +557,9 @@ public class Compiler {
         if (lexer.token == Symbol.LEFTPAR) {
             lexer.nextToken();
             e = expr();
-           // if(!(e instanceof Expr) && !(e instanceof ExprLiteralString))
-             //   error.signal("type not allowed");
+
+           if(e.getType().getTypeName() != "Int" && e.getType().getTypeName() != "String")
+                error.signal("type not allowed");
         }
         else error.signal("left par expected");
         if( lexer.token != Symbol.RIGHTPAR) error.signal("right par expected");

@@ -20,6 +20,10 @@ public class ExprLiteralInt extends Expr {
     return this.value;
   }
 
+  public Type getType() {
+    return new IntegerType();
+  }
+
   public void genC(){
     System.out.print(getIntValue());
   }

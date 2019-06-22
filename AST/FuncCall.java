@@ -14,6 +14,7 @@ public class FuncCall extends Expr {
   //atributos:
   private ArrayList<Expr> exprList;
   private String name;
+  private Type type;
 
   //metodos:
   public FuncCall(String nome, ArrayList<Expr> lista){
@@ -27,6 +28,10 @@ public class FuncCall extends Expr {
 
   public String getName(){
     return this.name;
+  }
+
+  public Type getType() {
+    return this.type;
   }
 
   //genc
