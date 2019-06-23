@@ -33,6 +33,7 @@ public class Compiler {
     }
 
     private Program program() {
+        System.out.println("program");
 
         // Program ::= Func {Func}
     	ArrayList<Function> arrayFunction = new ArrayList<Function>();
@@ -50,6 +51,7 @@ public class Compiler {
     }
 
     private Function func() {
+        System.out.println("func");
     	//Func ::= "function" Id [ "(" ParamList ")" ] ["->" Type ] StatList
     	Boolean isIdent = true;
     	String id = "";
@@ -104,6 +106,7 @@ public class Compiler {
     }
 
     private ParamList paramList() {
+        System.out.println("paramList");
         // ParamList ::= ParamDec {”, ”ParamDec}
 
         ParamList paramlist = null;
@@ -124,6 +127,7 @@ public class Compiler {
     }
 
     private void paramDec(ParamList paramList) {
+        System.out.println("paramDec");
         // ParamDec ::= Id ":" Type
 
         if (lexer.token != Symbol.IDENT) {
@@ -174,6 +178,7 @@ public class Compiler {
     }
 
     private StatementList statList() {
+        System.out.println("statList");
         // StatList ::= "{" {Stat} "}"
 
         Symbol tkn;
@@ -203,6 +208,7 @@ public class Compiler {
     }
 
     private Statement stat() {
+        System.out.println("stat");
         // Stat ::= AssignExprStat| ReturnStat | VarDecStat | IfStat | WhileStat
         
         switch (lexer.token) {
@@ -236,11 +242,15 @@ public class Compiler {
     }
 
     private AssignExprStatement assignExprStat() {
+        System.out.println("assignExprStat");
         // AssignExprStat ::= Expr [ "=" Expr] ";"
         Expr left = expr();
         Expr right = null;
 
         if (lexer.token == Symbol.ATRIB) {
+            if (left instanceof ExprUnary)
+                System.out.println("É UNARY");
+
             lexer.nextToken();
             right = expr();
         }
@@ -257,6 +267,7 @@ public class Compiler {
     }
 
     private IfStatement IfStat() {
+        System.out.println("IfStat");
         // IfStat ::= "if" Expr StatList
         lexer.nextToken();
         Expr e = expr();
@@ -273,6 +284,7 @@ public class Compiler {
     }
 
     private VarDecStat varDecStat() {
+        System.out.println("varDecStat");
         // VarDecStat ::= "var" Id ":" Type ";"
         Variable v = null;
         String id = null;
@@ -309,6 +321,7 @@ public class Compiler {
     }
 
     private WhileStatement whileStat() {
+        System.out.println("whileStat");
         // WhileStat ::= "while" Expr StatList
         lexer.nextToken();
 
@@ -319,6 +332,7 @@ public class Compiler {
     }
 
     private ReturnStatement returnStat() {
+        System.out.println("returnStat");
         //ReturnStat ::= "return" Expr ";"
         lexer.nextToken();
         Expr e = expr();
@@ -333,6 +347,7 @@ public class Compiler {
     }
 
     private Expr expr() {
+        System.out.println("expr");
         // Expr ::= ExprAnd {”or”ExprAnd}
         Expr left, right;
         left = exprAnd();
@@ -340,6 +355,11 @@ public class Compiler {
         if (lexer.token == Symbol.OR) {
             lexer.nextToken();
             right = exprAnd();
+
+            // Analise semantica: expressao OR precisa ter 2 expressoes boolean
+            if (left.getType().getTypeName() != "Boolean" || right.getType().getTypeName() != "Boolean")
+                error.signal("Expression of boolean type expected");
+
             left = new CompositeExpr(left, Symbol.OR, right);
         }
 
@@ -347,6 +367,7 @@ public class Compiler {
     }
 
     private Expr exprAnd() {
+        System.out.println("exprAnd");
         // ExprAnd ::= ExprRel {”and”ExprRel}
         Expr left, right;
         left = exprRel();
@@ -354,13 +375,18 @@ public class Compiler {
         if (lexer.token == Symbol.AND) {
             lexer.nextToken();
             right = exprRel();
+
+            // Analise semantica: expressao AND precisa ter 3 expressoes boolean
+            if (left.getType().getTypeName() != "Boolean" || right.getType().getTypeName() != "Boolean")
+                error.signal("Expression of boolean type expected");
+
             left = new CompositeExpr(left, Symbol.AND, right);
         }
-
         return left;
     }
 
     private Expr exprRel() {
+        System.out.println("exprRel");
         // ExprRel ::= ExprAdd [ RelOp ExprAdd ]
         Expr left, right;
         left = exprAdd();
@@ -369,6 +395,13 @@ public class Compiler {
         if (op == Symbol.LT || op == Symbol.LE || op == Symbol.GT || op == Symbol.GE || op == Symbol.NEQ || op == Symbol.EQ) {
             lexer.nextToken();
             right = exprAdd();
+
+            // Analise semantica: As duas expressoes precisam ter o mesmo tipo
+            if (left.getType().getTypeName() != right.getType().getTypeName()) {
+                System.out.println(left.getType().getTypeName() + " " + right.getType().getTypeName());
+                error.signal("Different types in expression");
+            }
+
             left = new CompositeExpr(left, op, right);
         }
 
@@ -376,6 +409,7 @@ public class Compiler {
     }
 
     private Expr exprAdd() {
+        System.out.println("exprAdd");
         // ExprAdd ::= ExprMult {(” + ” | ” − ”)ExprMult}
         Expr left, right;
         left = exprMult();
@@ -385,6 +419,11 @@ public class Compiler {
             op = lexer.token;
             lexer.nextToken();
             right = exprMult();
+
+            // Analise semantica: Expressao de soma precisa ter 2 expressoes de tipo inteiro
+            if (left.getType().getTypeName() != "Int" || right.getType().getTypeName() != "Int")
+                error.signal("Expression of type integer expected");
+
             left = new CompositeExpr(left, op, right);
         }
 
@@ -392,6 +431,7 @@ public class Compiler {
     }
 
     private Expr exprMult() {
+        System.out.println("exprMult");
         // ExprMult ::= ExprUnary {(” ∗ ” | ”/”)ExprUnary}
         Expr left, right;
         left = exprUnary();
@@ -401,6 +441,10 @@ public class Compiler {
             op = lexer.token;
             lexer.nextToken();
             right = exprUnary();
+
+            // Analise semantica: Expressao de multiplicacao precisa ter 2 expressoes de tipo inteiro
+            if (left.getType().getTypeName() != "Int" || right.getType().getTypeName() != "Int")
+
             left = new CompositeExpr(left, op, right);
         }
 
@@ -408,6 +452,7 @@ public class Compiler {
     }
 
     private Expr exprUnary() {
+        System.out.println("exprUnary");
         // ExprUnary ::= [ ( "+" | "-" ) ] ExprPrimary
         Symbol op = null;
         if (lexer.token == Symbol.PLUS || lexer.token == Symbol.MINUS) {
@@ -416,11 +461,20 @@ public class Compiler {
         }
 
         Expr e = exprPrimary();
+        /*System.out.println("OI");
+        System.out.println(e instanceof ExprLiteralInt);
+        System.out.println(lexer.token.toString());
+
+
+        if (e.getType().getTypeName() != "Int") {
+            error.signal("Unary operator " + op.toString() + " with type integer expected");
+        }*/
 
         return new ExprUnary(op, e);
     }
 
     private Expr exprPrimary() {
+        System.out.println("exprPrimary");
         // ExprPrimary ::= Id | FuncCall | ExprLiteral
         Expr e;
 
@@ -447,6 +501,7 @@ public class Compiler {
     }
 
     private ExprLiteralInt exprLiteralInt() {
+        System.out.println("exprLiteralInt");
         if (lexer.token != Symbol.LITERALINT) {
             error.signal("Int expected");
         }
@@ -458,6 +513,7 @@ public class Compiler {
     }
 
     private ExprLiteralString exprLiteralString() {
+        System.out.println("exprLiteralString");
         if (lexer.token != Symbol.LITERALSTRING) {
             error.signal("String expected");
         }
@@ -469,6 +525,7 @@ public class Compiler {
     }
 
     private ExprLiteralBoolean exprLiteralBoolean() {
+        System.out.println("exprLiteralBoolean");
         if (lexer.token != Symbol.FALSE && lexer.token != Symbol.TRUE) {
             error.signal("Boolean expected");
         }
@@ -480,10 +537,12 @@ public class Compiler {
     }
 
     private FuncCall funcCall(String name) {
+        System.out.println("funcCall");
         // FuncCall ::= Id "(" [ Expr {”, ”Expr} ] ")"
         ArrayList<Expr> exprList = new ArrayList<Expr>();
         Expr e = null;
-        
+        Function f = (Function) symbolTable.getInGlobal(name);
+
         if (lexer.token != Symbol.LEFTPAR) {
             error.signal("( expected");
         }
@@ -510,10 +569,11 @@ public class Compiler {
             lexer.nextToken();
 
         }
-        return new FuncCall(name, exprList);
+        return new FuncCall(f, exprList);
     }
 
     private Expr exprId() {
+        System.out.println("exprId");
         String name = lexer.getStringValue();
         lexer.nextToken();
 
