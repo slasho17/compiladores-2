@@ -20,6 +20,7 @@ public class FuncCall extends Expr {
   public FuncCall(Function func, ArrayList<Expr> lista){
     this.exprList = lista;
     this.func = func;
+    this.type = func.getType();
   }
 
   public ArrayList<Expr> getExprList(){

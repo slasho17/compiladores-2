@@ -464,11 +464,11 @@ public class Compiler {
         /*System.out.println("OI");
         System.out.println(e instanceof ExprLiteralInt);
         System.out.println(lexer.token.toString());
+        */
 
-
-        if (e.getType().getTypeName() != "Int") {
+        if (op != null && e.getType().getTypeName() != "Int") {
             error.signal("Unary operator " + op.toString() + " with type integer expected");
-        }*/
+        }
 
         return new ExprUnary(op, e);
     }
