@@ -11,9 +11,7 @@ function fatorial(n : Int) -> Int {
 
 function imprima(before: Int, valor: Int, after: String){
 	var i : Int ;
-	var j : Boolean;
 	i = 0;
-	j = true or false;
 
 	while i < before{
 		write("*");
@@ -23,6 +21,13 @@ function imprima(before: Int, valor: Int, after: String){
 	writeln(valor);
 	writeln(after);	
 }
-	function main {
-		imprima(50, fatorial(5)*2*fatorial(3), "      fim ");
-	}
+
+function teste -> Boolean {
+
+}
+	
+function main {
+	var j : Boolean;
+	j = teste();
+	imprima(50, fatorial(5)*2*fatorial(3), "      fim ");
+}

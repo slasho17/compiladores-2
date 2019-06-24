@@ -21,11 +21,6 @@ public class Compiler {
 			// analise semantica
         symbolTable = new SymbolTable();
 
-				// bruno veja isto, nos vamos ter um expr e um set expr que vai atribuir este expr, entao toda vez que
-				// chamarmos os writers, vamos setar uma expr e no gen c, vamos chamar o genc dos writers e o genc dos expr
-				// gambiarra monstra
-
-
         error = new CompilerError(lexer);
         lexer = new Lexer(input, error);
         error.setLexer(lexer);
@@ -34,7 +29,7 @@ public class Compiler {
     }
 
     private Program program() {
-        System.out.println("program");
+        //System.out.println("program");
 
         // Program ::= Func {Func}
     	ArrayList<Function> arrayFunction = new ArrayList<Function>();
@@ -60,7 +55,7 @@ public class Compiler {
     }
 
     private Function func() {
-        System.out.println("func");
+        //System.out.println("func");
     	//Func ::= "function" Id [ "(" ParamList ")" ] ["->" Type ] StatList
     	Boolean isIdent = true;
     	String id = "";
@@ -126,7 +121,7 @@ public class Compiler {
     }
 
     private ParamList paramList() {
-        System.out.println("paramList");
+       // System.out.println("paramList");
         // ParamList ::= ParamDec {”, ”ParamDec}
 
         ParamList paramlist = null;
@@ -147,7 +142,7 @@ public class Compiler {
     }
 
     private void paramDec(ParamList paramList) {
-        System.out.println("paramDec");
+        //System.out.println("paramDec");
         // ParamDec ::= Id ":" Type
 
         if (lexer.token != Symbol.IDENT) {
@@ -198,7 +193,7 @@ public class Compiler {
     }
 
     private StatementList statList() {
-        System.out.println("statList");
+        //System.out.println("statList");
         // StatList ::= "{" {Stat} "}"
 
         Symbol tkn;
@@ -228,7 +223,7 @@ public class Compiler {
     }
 
     private Statement stat() {
-        System.out.println("stat");
+        //System.out.println("stat");
         // Stat ::= AssignExprStat| ReturnStat | VarDecStat | IfStat | WhileStat
         
         switch (lexer.token) {
@@ -262,7 +257,7 @@ public class Compiler {
     }
 
     private AssignExprStatement assignExprStat() {
-        System.out.println("assignExprStat");
+        //System.out.println("assignExprStat");
         // AssignExprStat ::= Expr [ "=" Expr] ";"
         Expr left = expr();
         Expr right = null;
@@ -293,7 +288,7 @@ public class Compiler {
     }
 
     private IfStatement IfStat() {
-        System.out.println("IfStat");
+        //System.out.println("IfStat");
         // IfStat ::= "if" Expr StatList
         lexer.nextToken();
         Expr e = expr();
@@ -310,7 +305,7 @@ public class Compiler {
     }
 
     private VarDecStat varDecStat() {
-        System.out.println("varDecStat");
+        //System.out.println("varDecStat");
         // VarDecStat ::= "var" Id ":" Type ";"
         Variable v = null;
         String id = null;
@@ -347,7 +342,7 @@ public class Compiler {
     }
 
     private WhileStatement whileStat() {
-        System.out.println("whileStat");
+        //System.out.println("whileStat");
         // WhileStat ::= "while" Expr StatList
         lexer.nextToken();
 
@@ -358,7 +353,7 @@ public class Compiler {
     }
 
     private ReturnStatement returnStat() {
-        System.out.println("returnStat");
+        //System.out.println("returnStat");
         //ReturnStat ::= "return" Expr ";"
         lexer.nextToken();
         Expr e = expr();
@@ -377,7 +372,7 @@ public class Compiler {
     }
 
     private Expr expr() {
-        System.out.println("expr");
+        //System.out.println("expr");
         // Expr ::= ExprAnd {”or”ExprAnd}
         Expr left, right;
         left = exprAnd();
@@ -397,7 +392,7 @@ public class Compiler {
     }
 
     private Expr exprAnd() {
-        System.out.println("exprAnd");
+        //System.out.println("exprAnd");
         // ExprAnd ::= ExprRel {”and”ExprRel}
         Expr left, right;
         left = exprRel();
@@ -416,7 +411,7 @@ public class Compiler {
     }
 
     private Expr exprRel() {
-        System.out.println("exprRel");
+        //System.out.println("exprRel");
         // ExprRel ::= ExprAdd [ RelOp ExprAdd ]
         Expr left, right;
         left = exprAdd();
@@ -428,7 +423,6 @@ public class Compiler {
 
             // Analise semantica: As duas expressoes precisam ter o mesmo tipo
             if (left.getType().getTypeName() != right.getType().getTypeName()) {
-                System.out.println(left.getType().getTypeName() + " " + right.getType().getTypeName());
                 error.signal("Incompatible types in expression");
             }
 
@@ -439,7 +433,7 @@ public class Compiler {
     }
 
     private Expr exprAdd() {
-        System.out.println("exprAdd");
+        //System.out.println("exprAdd");
         // ExprAdd ::= ExprMult {(” + ” | ” − ”)ExprMult}
         Expr left, right;
         left = exprMult();
@@ -461,7 +455,7 @@ public class Compiler {
     }
 
     private Expr exprMult() {
-        System.out.println("exprMult");
+        //System.out.println("exprMult");
         // ExprMult ::= ExprUnary {(” ∗ ” | ”/”)ExprUnary}
         Expr left, right;
         left = exprUnary();
@@ -482,7 +476,7 @@ public class Compiler {
     }
 
     private Expr exprUnary() {
-        System.out.println("exprUnary");
+        //System.out.println("exprUnary");
         // ExprUnary ::= [ ( "+" | "-" ) ] ExprPrimary
         Symbol op = null;
         if (lexer.token == Symbol.PLUS || lexer.token == Symbol.MINUS) {
@@ -491,10 +485,6 @@ public class Compiler {
         }
 
         Expr e = exprPrimary();
-        /*System.out.println("OI");
-        System.out.println(e instanceof ExprLiteralInt);
-        System.out.println(lexer.token.toString());
-        */
 
         if (op != null && e.getType().getTypeName() != "Int") {
             error.signal("Unary operator " + op.toString() + " with type integer expected");
@@ -504,7 +494,7 @@ public class Compiler {
     }
 
     private Expr exprPrimary() {
-        System.out.println("exprPrimary");
+        //System.out.println("exprPrimary");
         // ExprPrimary ::= Id | FuncCall | ExprLiteral
         Expr e;
 
@@ -531,7 +521,7 @@ public class Compiler {
     }
 
     private ExprLiteralInt exprLiteralInt() {
-        System.out.println("exprLiteralInt");
+        //System.out.println("exprLiteralInt");
         if (lexer.token != Symbol.LITERALINT) {
             error.signal("Int expected");
         }
@@ -543,7 +533,7 @@ public class Compiler {
     }
 
     private ExprLiteralString exprLiteralString() {
-        System.out.println("exprLiteralString");
+        //System.out.println("exprLiteralString");
         if (lexer.token != Symbol.LITERALSTRING) {
             error.signal("String expected");
         }
@@ -555,7 +545,7 @@ public class Compiler {
     }
 
     private ExprLiteralBoolean exprLiteralBoolean() {
-        System.out.println("exprLiteralBoolean");
+        //System.out.println("exprLiteralBoolean");
         if (lexer.token != Symbol.FALSE && lexer.token != Symbol.TRUE) {
             error.signal("Boolean expected");
         }
@@ -567,7 +557,7 @@ public class Compiler {
     }
 
     private FuncCall funcCall(String name) {
-        System.out.println("funcCall");
+        //System.out.println("funcCall");
         // FuncCall ::= Id "(" [ Expr {”, ”Expr} ] ")"
         ArrayList<Expr> exprList = new ArrayList<Expr>();
         Expr e = null;
@@ -579,9 +569,16 @@ public class Compiler {
         lexer.nextToken();
 
         ParamList pList = f.getParamList();
-        int plSize = pList.size();
+        int plSize;
         int i = 0;
         Parameter pAux;
+
+        // Funcao sem parametro nao possui paramList
+        if (pList != null) {
+            plSize = pList.size();
+        } else {
+            plSize = 0;
+        }
 
         if (lexer.token != Symbol.RIGHTPAR) {
             // processa todas expressoes
@@ -634,7 +631,7 @@ public class Compiler {
     }
 
     private Expr exprId() {
-        System.out.println("exprId");
+        //System.out.println("exprId");
         String name = lexer.getStringValue();
         lexer.nextToken();
 
