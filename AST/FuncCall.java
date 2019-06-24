@@ -35,6 +35,10 @@ public class FuncCall extends Expr {
     return this.type;
   }
 
+  public String getExprName() {
+    return "FuncCall";
+  }
+
   //genc
   public void genC(){
     System.out.print(this.func.getId() + "(");

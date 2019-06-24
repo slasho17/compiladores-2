@@ -13,6 +13,10 @@ public class ReadInt extends Expr {
     public Type getType(){
       return Type.integerType;
     }
+
+    public String getExprName() {
+      return "ReadInt";
+    }
     
     public void genC(){
 

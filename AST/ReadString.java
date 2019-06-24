@@ -13,6 +13,10 @@ public class ReadString extends Expr {
     public Type getType(){
       return Type.stringType;
     }
+
+    public String getExprName() {
+      return "ReadString";
+    }
     
     public void genC(){
 

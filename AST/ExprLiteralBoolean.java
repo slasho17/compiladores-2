@@ -28,6 +28,10 @@ public class ExprLiteralBoolean extends Expr {
     return new BooleanType();
   }
 
+  public String getExprName() {
+    return "ExprLiteralBoolean";
+  }
+
   //genc
   public void genC(){
     System.out.print(getBooleanValue());

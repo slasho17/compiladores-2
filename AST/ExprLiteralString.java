@@ -24,6 +24,10 @@ public class ExprLiteralString extends Expr {
     return new StringType();
   }
 
+  public String getExprName() {
+    return "ExprLiteralString";
+  }
+
   public void genC(){
     System.out.print(getStringValue());
   }

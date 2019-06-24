@@ -15,6 +15,7 @@ public class Compiler {
 	private SymbolTable symbolTable;
 	private Lexer lexer;
 	private CompilerError error;
+    private Function currentFunction;
 
     public Program compile( char []input) {
 			// analise semantica
@@ -47,6 +48,14 @@ public class Compiler {
         	error.signal("EOF expected");
 
         Program program = new Program(arrayFunction);
+
+        //checagem da main:
+        Function mainFunc = (Function) symbolTable.getInGlobal("main");
+
+        if(mainFunc == null) {
+           error.signal("Program must have a main function");            
+        }
+
         return program;
     }
 
@@ -74,12 +83,19 @@ public class Compiler {
             }
             
             f = new Function(id);
+            currentFunction = f;
 
             // coloca o identificador da funcao na hashtable
             symbolTable.putsInGlobal(id, f);
 
     		lexer.nextToken();
             if(lexer.token == Symbol.LEFTPAR) {
+                // analise semantica
+                // verifica se funcao main nao tem parametros
+                if (id.equals("main")) {
+                    error.signal("Main function can't have parameter(s)");
+                }
+
     			lexer.nextToken();
     			f.setParamList(paramList());
 
@@ -94,6 +110,10 @@ public class Compiler {
         }
 
     	if(lexer.token == Symbol.ARROW) {
+            if (id.equals("main")) {
+                error.signal("Main function can't return any value");
+            }
+
     		lexer.nextToken();
             type = type();
     	}
@@ -248,11 +268,17 @@ public class Compiler {
         Expr right = null;
 
         if (lexer.token == Symbol.ATRIB) {
-            if (left instanceof ExprUnary)
-                System.out.println("É UNARY");
+
+            if (left.getExprName() != "ExprIdentifier") {
+                error.signal("Variable expected in assignment");
+            }
 
             lexer.nextToken();
             right = expr();
+
+            if (left.getType().getTypeName() != right.getType().getTypeName()) {
+                error.signal("Incompatible types in assignment");
+            }
         }
 
         if (lexer.token != Symbol.SEMICOLON) {
@@ -337,6 +363,10 @@ public class Compiler {
         lexer.nextToken();
         Expr e = expr();
 
+        if (e.getType().getTypeName() != currentFunction.getType().getTypeName()) {
+            error.signal("Incompatible return type in function " + currentFunction.getId());
+        }
+
         if (lexer.token != Symbol.SEMICOLON) {
             error.signal("; expected");
         }
@@ -399,7 +429,7 @@ public class Compiler {
             // Analise semantica: As duas expressoes precisam ter o mesmo tipo
             if (left.getType().getTypeName() != right.getType().getTypeName()) {
                 System.out.println(left.getType().getTypeName() + " " + right.getType().getTypeName());
-                error.signal("Different types in expression");
+                error.signal("Incompatible types in expression");
             }
 
             left = new CompositeExpr(left, op, right);
@@ -495,7 +525,7 @@ public class Compiler {
                 return readString();
 
             default:
-                error.signal("Statement expected se pa");
+                error.signal("Statement expected");
                 return null;
         }
     }
@@ -548,13 +578,31 @@ public class Compiler {
         }
         lexer.nextToken();
 
-        if (lexer.token != Symbol.RIGHTPAR) {
-            // # Implementar analise semantica
+        ParamList pList = f.getParamList();
+        int plSize = pList.size();
+        int i = 0;
+        Parameter pAux;
 
+        if (lexer.token != Symbol.RIGHTPAR) {
             // processa todas expressoes
             while (true) {
                 e = expr();
                 exprList.add(e);
+
+                // analise semantica
+                // verifica se nao esta sendo passado parametro a mais
+                if (i >= plSize) {
+                    error.signal("Wrong number of parameters in call");
+                }
+
+                // verifica se o tipo dos parametros estao corretos
+                pAux = pList.access(i);
+
+                if (pAux.getType().getTypeName() != e.getType().getTypeName()) {
+                    error.signal("Incompatible parameter types in call");
+                }
+
+                i++;
 
                 if (lexer.token == Symbol.COMMA) {
                     lexer.nextToken();
@@ -568,7 +616,20 @@ public class Compiler {
             }
             lexer.nextToken();
 
+            // analise semantica
+            // verifica se nao esta sendo passado parametros a menos
+            if (i < plSize) {
+                error.signal("Wrong number of parameters in call");
+            }
+
+        } else {
+            if (plSize > 0) {
+                error.signal("Parameter expected");
+            }
+
+            lexer.nextToken();
         }
+        
         return new FuncCall(f, exprList);
     }
 

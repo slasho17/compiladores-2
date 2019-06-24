@@ -31,6 +31,10 @@ public class CompositeExpr extends Expr {
       }
     }
 
+    public String getExprName() {
+      return "CompositeExpr";
+    }
+
     public void genC() {
         System.out.print("(");
         left.genC();

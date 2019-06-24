@@ -24,6 +24,10 @@ public class ExprLiteralInt extends Expr {
     return new IntegerType();
   }
 
+  public String getExprName() {
+    return "ExprLiteralInt";
+  }
+
   public void genC(){
     System.out.print(getIntValue());
   }

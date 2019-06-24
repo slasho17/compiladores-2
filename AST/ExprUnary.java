@@ -34,4 +34,7 @@ public class ExprUnary extends Expr {
     return this.e;
   }
 
+  public String getExprName() {
+    return e.getExprName();
+  }
 }

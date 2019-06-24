@@ -11,7 +11,10 @@ function fatorial(n : Int) -> Int {
 
 function imprima(before: Int, valor: Int, after: String){
 	var i : Int ;
+	var j : Boolean;
 	i = 0;
+	j = true or false;
+
 	while i < before{
 		write("*");
 		i = i + 1;

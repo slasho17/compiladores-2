@@ -28,6 +28,10 @@ public class ExprIdentifier extends Expr {
     return this.type;
   }
 
+  public String getExprName() {
+    return "ExprIdentifier";
+  }
+
   //genC()
   public void genC() {
     System.out.print(this.name);
