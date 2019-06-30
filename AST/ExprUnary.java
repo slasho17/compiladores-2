@@ -26,4 +26,15 @@ public class ExprUnary extends Expr {
     }
   }
 
+  public Type getType() {
+    return e.getType();
+  }
+
+  public Expr getExpr() {
+    return this.e;
+  }
+
+  public String getExprName() {
+    return e.getExprName();
+  }
 }

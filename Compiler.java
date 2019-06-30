@@ -15,15 +15,11 @@ public class Compiler {
 	private SymbolTable symbolTable;
 	private Lexer lexer;
 	private CompilerError error;
+    private Function currentFunction;
 
     public Program compile( char []input) {
 			// analise semantica
         symbolTable = new SymbolTable();
-
-				// bruno veja isto, nos vamos ter um expr e um set expr que vai atribuir este expr, entao toda vez que
-				// chamarmos os writers, vamos setar uma expr e no gen c, vamos chamar o genc dos writers e o genc dos expr
-				// gambiarra monstra
-
 
         error = new CompilerError(lexer);
         lexer = new Lexer(input, error);
@@ -33,6 +29,7 @@ public class Compiler {
     }
 
     private Program program() {
+        //System.out.println("program");
 
         // Program ::= Func {Func}
     	ArrayList<Function> arrayFunction = new ArrayList<Function>();
@@ -46,10 +43,19 @@ public class Compiler {
         	error.signal("EOF expected");
 
         Program program = new Program(arrayFunction);
+
+        //checagem da main:
+        Function mainFunc = (Function) symbolTable.getInGlobal("main");
+
+        if(mainFunc == null) {
+           error.signal("Program must have a main function");            
+        }
+
         return program;
     }
 
     private Function func() {
+        //System.out.println("func");
     	//Func ::= "function" Id [ "(" ParamList ")" ] ["->" Type ] StatList
     	Boolean isIdent = true;
     	String id = "";
@@ -72,12 +78,19 @@ public class Compiler {
             }
             
             f = new Function(id);
+            currentFunction = f;
 
             // coloca o identificador da funcao na hashtable
             symbolTable.putsInGlobal(id, f);
 
     		lexer.nextToken();
             if(lexer.token == Symbol.LEFTPAR) {
+                // analise semantica
+                // verifica se funcao main nao tem parametros
+                if (id.equals("main")) {
+                    error.signal("Main function can't have parameter(s)");
+                }
+
     			lexer.nextToken();
     			f.setParamList(paramList());
 
@@ -92,6 +105,10 @@ public class Compiler {
         }
 
     	if(lexer.token == Symbol.ARROW) {
+            if (id.equals("main")) {
+                error.signal("Main function can't return any value");
+            }
+
     		lexer.nextToken();
             type = type();
     	}
@@ -104,6 +121,7 @@ public class Compiler {
     }
 
     private ParamList paramList() {
+       // System.out.println("paramList");
         // ParamList ::= ParamDec {”, ”ParamDec}
 
         ParamList paramlist = null;
@@ -124,13 +142,14 @@ public class Compiler {
     }
 
     private void paramDec(ParamList paramList) {
+        //System.out.println("paramDec");
         // ParamDec ::= Id ":" Type
 
         if (lexer.token != Symbol.IDENT) {
             error.signal("Identifier expected");
         }
 
-        String name = (String) lexer.getStringValue();
+        String name = lexer.getStringValue();
         lexer.nextToken();
 
         if (lexer.token != Symbol.COLON) {
@@ -174,6 +193,7 @@ public class Compiler {
     }
 
     private StatementList statList() {
+        //System.out.println("statList");
         // StatList ::= "{" {Stat} "}"
 
         Symbol tkn;
@@ -203,6 +223,7 @@ public class Compiler {
     }
 
     private Statement stat() {
+        //System.out.println("stat");
         // Stat ::= AssignExprStat| ReturnStat | VarDecStat | IfStat | WhileStat
         
         switch (lexer.token) {
@@ -236,13 +257,23 @@ public class Compiler {
     }
 
     private AssignExprStatement assignExprStat() {
+        //System.out.println("assignExprStat");
         // AssignExprStat ::= Expr [ "=" Expr] ";"
         Expr left = expr();
         Expr right = null;
 
         if (lexer.token == Symbol.ATRIB) {
+
+            if (left.getExprName() != "ExprIdentifier") {
+                error.signal("Variable expected in assignment");
+            }
+
             lexer.nextToken();
             right = expr();
+
+            if (left.getType().getTypeName() != right.getType().getTypeName()) {
+                error.signal("Incompatible types in assignment");
+            }
         }
 
         if (lexer.token != Symbol.SEMICOLON) {
@@ -257,6 +288,7 @@ public class Compiler {
     }
 
     private IfStatement IfStat() {
+        //System.out.println("IfStat");
         // IfStat ::= "if" Expr StatList
         lexer.nextToken();
         Expr e = expr();
@@ -273,6 +305,7 @@ public class Compiler {
     }
 
     private VarDecStat varDecStat() {
+        //System.out.println("varDecStat");
         // VarDecStat ::= "var" Id ":" Type ";"
         Variable v = null;
         String id = null;
@@ -309,6 +342,7 @@ public class Compiler {
     }
 
     private WhileStatement whileStat() {
+        //System.out.println("whileStat");
         // WhileStat ::= "while" Expr StatList
         lexer.nextToken();
 
@@ -319,9 +353,14 @@ public class Compiler {
     }
 
     private ReturnStatement returnStat() {
+        //System.out.println("returnStat");
         //ReturnStat ::= "return" Expr ";"
         lexer.nextToken();
         Expr e = expr();
+
+        if (e.getType().getTypeName() != currentFunction.getType().getTypeName()) {
+            error.signal("Incompatible return type in function " + currentFunction.getId());
+        }
 
         if (lexer.token != Symbol.SEMICOLON) {
             error.signal("; expected");
@@ -333,6 +372,7 @@ public class Compiler {
     }
 
     private Expr expr() {
+        //System.out.println("expr");
         // Expr ::= ExprAnd {”or”ExprAnd}
         Expr left, right;
         left = exprAnd();
@@ -340,6 +380,11 @@ public class Compiler {
         if (lexer.token == Symbol.OR) {
             lexer.nextToken();
             right = exprAnd();
+
+            // Analise semantica: expressao OR precisa ter 2 expressoes boolean
+            if (left.getType().getTypeName() != "Boolean" || right.getType().getTypeName() != "Boolean")
+                error.signal("Expression of boolean type expected");
+
             left = new CompositeExpr(left, Symbol.OR, right);
         }
 
@@ -347,6 +392,7 @@ public class Compiler {
     }
 
     private Expr exprAnd() {
+        //System.out.println("exprAnd");
         // ExprAnd ::= ExprRel {”and”ExprRel}
         Expr left, right;
         left = exprRel();
@@ -354,13 +400,18 @@ public class Compiler {
         if (lexer.token == Symbol.AND) {
             lexer.nextToken();
             right = exprRel();
+
+            // Analise semantica: expressao AND precisa ter 3 expressoes boolean
+            if (left.getType().getTypeName() != "Boolean" || right.getType().getTypeName() != "Boolean")
+                error.signal("Expression of boolean type expected");
+
             left = new CompositeExpr(left, Symbol.AND, right);
         }
-
         return left;
     }
 
     private Expr exprRel() {
+        //System.out.println("exprRel");
         // ExprRel ::= ExprAdd [ RelOp ExprAdd ]
         Expr left, right;
         left = exprAdd();
@@ -369,6 +420,12 @@ public class Compiler {
         if (op == Symbol.LT || op == Symbol.LE || op == Symbol.GT || op == Symbol.GE || op == Symbol.NEQ || op == Symbol.EQ) {
             lexer.nextToken();
             right = exprAdd();
+
+            // Analise semantica: As duas expressoes precisam ter o mesmo tipo
+            if (left.getType().getTypeName() != right.getType().getTypeName()) {
+                error.signal("Incompatible types in expression");
+            }
+
             left = new CompositeExpr(left, op, right);
         }
 
@@ -376,6 +433,7 @@ public class Compiler {
     }
 
     private Expr exprAdd() {
+        //System.out.println("exprAdd");
         // ExprAdd ::= ExprMult {(” + ” | ” − ”)ExprMult}
         Expr left, right;
         left = exprMult();
@@ -385,6 +443,11 @@ public class Compiler {
             op = lexer.token;
             lexer.nextToken();
             right = exprMult();
+
+            // Analise semantica: Expressao de soma precisa ter 2 expressoes de tipo inteiro
+            if (left.getType().getTypeName() != "Int" || right.getType().getTypeName() != "Int")
+                error.signal("Expression of type integer expected");
+
             left = new CompositeExpr(left, op, right);
         }
 
@@ -392,6 +455,7 @@ public class Compiler {
     }
 
     private Expr exprMult() {
+        //System.out.println("exprMult");
         // ExprMult ::= ExprUnary {(” ∗ ” | ”/”)ExprUnary}
         Expr left, right;
         left = exprUnary();
@@ -401,6 +465,10 @@ public class Compiler {
             op = lexer.token;
             lexer.nextToken();
             right = exprUnary();
+
+            // Analise semantica: Expressao de multiplicacao precisa ter 2 expressoes de tipo inteiro
+            if (left.getType().getTypeName() != "Int" || right.getType().getTypeName() != "Int")
+
             left = new CompositeExpr(left, op, right);
         }
 
@@ -408,6 +476,7 @@ public class Compiler {
     }
 
     private Expr exprUnary() {
+        //System.out.println("exprUnary");
         // ExprUnary ::= [ ( "+" | "-" ) ] ExprPrimary
         Symbol op = null;
         if (lexer.token == Symbol.PLUS || lexer.token == Symbol.MINUS) {
@@ -417,10 +486,15 @@ public class Compiler {
 
         Expr e = exprPrimary();
 
+        if (op != null && e.getType().getTypeName() != "Int") {
+            error.signal("Unary operator " + op.toString() + " with type integer expected");
+        }
+
         return new ExprUnary(op, e);
     }
 
     private Expr exprPrimary() {
+        //System.out.println("exprPrimary");
         // ExprPrimary ::= Id | FuncCall | ExprLiteral
         Expr e;
 
@@ -441,12 +515,13 @@ public class Compiler {
                 return readString();
 
             default:
-                error.signal("Statement expected se pa");
+                error.signal("Statement expected");
                 return null;
         }
     }
 
     private ExprLiteralInt exprLiteralInt() {
+        //System.out.println("exprLiteralInt");
         if (lexer.token != Symbol.LITERALINT) {
             error.signal("Int expected");
         }
@@ -458,6 +533,7 @@ public class Compiler {
     }
 
     private ExprLiteralString exprLiteralString() {
+        //System.out.println("exprLiteralString");
         if (lexer.token != Symbol.LITERALSTRING) {
             error.signal("String expected");
         }
@@ -469,33 +545,61 @@ public class Compiler {
     }
 
     private ExprLiteralBoolean exprLiteralBoolean() {
+        //System.out.println("exprLiteralBoolean");
         if (lexer.token != Symbol.FALSE && lexer.token != Symbol.TRUE) {
             error.signal("Boolean expected");
         }
 
-        boolean value = false; // #IMPLEMENTAR LEXER
+        boolean value = false;
         lexer.nextToken();
 
         return new ExprLiteralBoolean(value);
     }
 
     private FuncCall funcCall(String name) {
+        //System.out.println("funcCall");
         // FuncCall ::= Id "(" [ Expr {”, ”Expr} ] ")"
         ArrayList<Expr> exprList = new ArrayList<Expr>();
         Expr e = null;
-        
+        Function f = (Function) symbolTable.getInGlobal(name);
+
         if (lexer.token != Symbol.LEFTPAR) {
             error.signal("( expected");
         }
         lexer.nextToken();
 
-        if (lexer.token != Symbol.RIGHTPAR) {
-            // # Implementar analise semantica
+        ParamList pList = f.getParamList();
+        int plSize;
+        int i = 0;
+        Parameter pAux;
 
+        // Funcao sem parametro nao possui paramList
+        if (pList != null) {
+            plSize = pList.size();
+        } else {
+            plSize = 0;
+        }
+
+        if (lexer.token != Symbol.RIGHTPAR) {
             // processa todas expressoes
             while (true) {
                 e = expr();
                 exprList.add(e);
+
+                // analise semantica
+                // verifica se nao esta sendo passado parametro a mais
+                if (i >= plSize) {
+                    error.signal("Wrong number of parameters in call");
+                }
+
+                // verifica se o tipo dos parametros estao corretos
+                pAux = pList.access(i);
+
+                if (pAux.getType().getTypeName() != e.getType().getTypeName()) {
+                    error.signal("Incompatible parameter types in call");
+                }
+
+                i++;
 
                 if (lexer.token == Symbol.COMMA) {
                     lexer.nextToken();
@@ -509,11 +613,25 @@ public class Compiler {
             }
             lexer.nextToken();
 
+            // analise semantica
+            // verifica se nao esta sendo passado parametros a menos
+            if (i < plSize) {
+                error.signal("Wrong number of parameters in call");
+            }
+
+        } else {
+            if (plSize > 0) {
+                error.signal("Parameter expected");
+            }
+
+            lexer.nextToken();
         }
-        return new FuncCall(name, exprList);
+        
+        return new FuncCall(f, exprList);
     }
 
     private Expr exprId() {
+        //System.out.println("exprId");
         String name = lexer.getStringValue();
         lexer.nextToken();
 
@@ -528,13 +646,12 @@ public class Compiler {
         }
         
         // Se for exprId
-
-        Object id = symbolTable.getInLocal(name);
+        Variable id = (Variable) symbolTable.getInLocal(name);
         if (id == null){
             error.signal("identifier " + name + " doesn't exists");
         }
 
-        return new ExprIdentifier(name);
+        return new ExprIdentifier(name, id.getType());
     }
 
     private Statement writeLn() {
@@ -543,8 +660,8 @@ public class Compiler {
         if (lexer.token == Symbol.LEFTPAR) {
             lexer.nextToken();
             e = expr();
-            //if(!(e instanceof ExprLiteralInt) && !(e instanceof ExprLiteralString))
-              //  error.signal("type not allowed");
+            if(e.getType().getTypeName() != "Int" && e.getType().getTypeName() != "String")
+                error.signal("type not allowed");
         }
         else error.signal("left par expected");
         if( lexer.token != Symbol.RIGHTPAR) error.signal("right par expected");
@@ -558,8 +675,9 @@ public class Compiler {
         if (lexer.token == Symbol.LEFTPAR) {
             lexer.nextToken();
             e = expr();
-           // if(!(e instanceof Expr) && !(e instanceof ExprLiteralString))
-             //   error.signal("type not allowed");
+
+           if(e.getType().getTypeName() != "Int" && e.getType().getTypeName() != "String")
+                error.signal("type not allowed");
         }
         else error.signal("left par expected");
         if( lexer.token != Symbol.RIGHTPAR) error.signal("right par expected");

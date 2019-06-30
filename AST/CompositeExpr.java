@@ -22,6 +22,19 @@ public class CompositeExpr extends Expr {
         right = pright;
     }
 
+    public Type getType() {
+      if (oper == Symbol.EQ || oper == Symbol.NEQ || oper == Symbol.LE || oper == Symbol.LT
+          || oper == Symbol.GE || oper == Symbol.GT || oper == Symbol.AND || oper == Symbol.OR) {
+          return new BooleanType();
+      } else {
+          return new IntegerType();
+      }
+    }
+
+    public String getExprName() {
+      return "CompositeExpr";
+    }
+
     public void genC() {
         System.out.print("(");
         left.genC();

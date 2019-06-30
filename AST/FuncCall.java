@@ -13,25 +13,35 @@ public class FuncCall extends Expr {
 
   //atributos:
   private ArrayList<Expr> exprList;
-  private String name;
+  private Function func;
+  private Type type;
 
   //metodos:
-  public FuncCall(String nome, ArrayList<Expr> lista){
+  public FuncCall(Function func, ArrayList<Expr> lista){
     this.exprList = lista;
-    this.name = nome;
+    this.func = func;
+    this.type = func.getType();
   }
 
   public ArrayList<Expr> getExprList(){
     return this.exprList;
   }
 
-  public String getName(){
-    return this.name;
+  public Function getFunc(){
+    return this.func;
+  }
+
+  public Type getType() {
+    return this.type;
+  }
+
+  public String getExprName() {
+    return "FuncCall";
   }
 
   //genc
   public void genC(){
-    System.out.print(this.name + "(");
+    System.out.print(this.func.getId() + "(");
     
     int length = this.exprList.size();
     

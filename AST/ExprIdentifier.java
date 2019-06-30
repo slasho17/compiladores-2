@@ -12,14 +12,24 @@ public class ExprIdentifier extends Expr {
 
   //atributos:
   private String name;
+  private Type type;
 
   //metodos:
-  public ExprIdentifier(String nome){
+  public ExprIdentifier(String nome, Type type){
     this.name = nome;
+    this.type = type;
   }
   
   public String getName(){
     return this.name;
+  }
+
+  public Type getType() {
+    return this.type;
+  }
+
+  public String getExprName() {
+    return "ExprIdentifier";
   }
 
   //genC()

@@ -20,6 +20,14 @@ public class ExprLiteralInt extends Expr {
     return this.value;
   }
 
+  public Type getType() {
+    return new IntegerType();
+  }
+
+  public String getExprName() {
+    return "ExprLiteralInt";
+  }
+
   public void genC(){
     System.out.print(getIntValue());
   }

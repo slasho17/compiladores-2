@@ -24,6 +24,14 @@ public class ExprLiteralBoolean extends Expr {
     return this.value;
   }
 
+  public Type getType() {
+    return new BooleanType();
+  }
+
+  public String getExprName() {
+    return "ExprLiteralBoolean";
+  }
+
   //genc
   public void genC(){
     System.out.print(getBooleanValue());
