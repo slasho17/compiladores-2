@@ -1,0 +1,5 @@
+function main{
+  var x:Int;
+  var y:Int;
+  var x:Boolean;
+}

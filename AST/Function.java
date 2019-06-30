@@ -14,7 +14,7 @@ public class Function {
 	private String id;
 	private Type type;
 	private ParamList paramList;
-	private StatementList statList;
+	public StatementList statList;
 
 	//metodos:
 	public Function( String Id ) {

@@ -1,0 +1,8 @@
+function soma{
+  if 5 <= 6{
+    write("Verdadeiro");
+  }
+  else{
+    write("Falso");
+  }
+}

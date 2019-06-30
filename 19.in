@@ -1,0 +1,11 @@
+function soma(x:Int) -> Int{
+  return x;
+}
+
+function soma{
+  write("Repeticao da funcao");
+}
+
+function main{
+
+}

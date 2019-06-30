@@ -1,0 +1,3 @@
+function main -> Boolean{
+  writeln("Main com retorno - Erro");
+}

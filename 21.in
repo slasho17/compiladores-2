@@ -1,0 +1,19 @@
+function main{
+  var x:Int;
+  var y:Int;
+  var result:Int;
+
+  write("Correto semantico");
+
+  result = x + y;
+  writeln(result);
+
+  result = x - y;
+  writeln(result);
+
+  result = x * y;
+  writeln(result);
+
+  result = x / y;
+  writeln(result);
+}

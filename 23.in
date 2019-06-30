@@ -1,0 +1,102 @@
+function constante -> Int{
+	var valorA : Int;
+	var valorB : Int;
+	valorA = 1 * + 2 + +5 * - 4;
+	valorB = 10 / 2 - 20 /  - 5;
+	if false or valorB != 10 {
+		return valorA;
+	}
+	return valorB;
+}
+
+
+function multiplicar (multA : Int, multB : Int, tipo : Boolean) -> Int{
+	var total : Int;
+	if tipo == true{
+		var i : Int;
+		i = 1;
+		total = 0;
+		while i <= multB{
+			total = total + multA;
+			i = i + 1;
+		}
+		return total;
+	}
+	if tipo == false{
+		total = multA * multB;
+		return total;
+	}
+}
+
+function maiorIgual(valorAa : Int, valorBb: Int) -> Boolean{
+	if valorAa >= valorBb{
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+function mensagem(msg : String) -> String{
+	writeln(msg);
+	return "write";
+}
+
+function calc(oper : Boolean){
+	var valor : Int;
+	var x : Int;
+	x = - constante() + 100;
+	valor = 1 + constante();
+	if oper == true or x > 80 and x < 0 and valor != 2 or valor > 50  {
+		valor = valor + 50;
+	}
+}
+
+function mensagens(msgA : String, msgB : String){
+	var aux : String;
+	aux = "Ola, sua mensagem:";
+	write(aux);
+	writeln(msgA);
+	write(aux);
+	writeln(msgB);
+}
+
+function portaAnd(eA : Boolean, eB : Boolean) -> Boolean{
+	eA;
+	eB;
+	var resultado : Boolean;
+	if eA == true and eB == true {
+		resultado = true;
+	}
+	else{
+		resultado = false;
+	}
+	return resultado;
+}
+
+function comparador(msgF : String, tipoComp : Boolean){
+	var com : String;
+	com = "Permitido";
+	if tipoComp{
+		com = "Proibido";
+	}
+	if msgF == com{
+		write("Acertou");
+	}
+}
+
+function loopInfinito {
+  var expr : Int;
+	while true { }
+}
+
+function main{
+	var resultadoM : Int;
+	var texto : String;
+	resultadoM = multiplicar(constante(), 10, true);
+	calc(maiorIgual(resultadoM, 10));
+	texto = mensagem("ola");
+	mensagens("Cuidado", "Pode ir");
+	comparador("Permitido", portaAnd(true, true));
+	loopInfinito();
+}

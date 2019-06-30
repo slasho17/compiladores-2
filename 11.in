@@ -1,0 +1,12 @@
+function mult -> Int{
+  var op:Int;
+  var opd:Int;
+
+  return op * opd;
+}
+
+function main{
+  var resultMult: String;
+
+  resultMult = mult();
+}

@@ -1,0 +1,21 @@
+function mult -> Int{
+  var op:Int;
+  var opd:Int;
+
+  return op * opd;
+}
+
+function soma(x:Int, y:Int){
+  writeln("Soma");
+
+  var sum:Int;
+
+  sum = x + y + x + y;
+}
+
+function main{
+  var resultMult: Int;
+
+  resultMult = mult();
+  soma();
+}

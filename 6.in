@@ -1,0 +1,12 @@
+function main{
+  var num:Int;
+
+  num = 5;
+
+  if num < 10{
+    num = true;
+  }
+  else{
+    num = false;
+  }
+}

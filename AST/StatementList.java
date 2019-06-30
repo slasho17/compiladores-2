@@ -12,9 +12,14 @@ public class StatementList {
 
   //atributos:
   private ArrayList<Statement> v;
+  public Boolean hasReturn;
 
   public StatementList(ArrayList<Statement> v) {
+      this.hasReturn=false;
       this.v = v;
+  }
+  public void setHasReturn(){
+    this.hasReturn = true;
   }
 
   public void genC(){

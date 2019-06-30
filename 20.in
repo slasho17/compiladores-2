@@ -1,0 +1,8 @@
+function main{
+	var num:Int;
+  var texto:String;
+
+  num = readInt();
+  texto = readString();
+
+}

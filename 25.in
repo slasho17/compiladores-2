@@ -1,0 +1,30 @@
+function recebeDado -> Int{
+  var num:Int;
+  var numDois:Int;
+  var texto : String;
+
+  num = readInt();
+  numDois = readInt();
+  texto = readString();
+
+  writeln(texto);
+
+  return num * numDois;
+}
+
+function main{
+  var result:Int;
+  var logico:Boolean;
+
+  logico = true;
+
+  while logico{
+    result = recebeDado();
+    writeln(result);
+    if result == 0{
+      logico = false;
+    }
+  }
+
+  writeln("teste sem erro");
+}

@@ -1,0 +1,12 @@
+function mult -> Int{
+  var op:Int;
+  var opd:Int;
+
+  return "Funcao de multiplicacao";
+}
+
+function main{
+  var resultMult: Int;
+
+  resultMult = mult();
+}

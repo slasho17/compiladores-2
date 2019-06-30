@@ -48,7 +48,7 @@ public class Compiler {
         Function mainFunc = (Function) symbolTable.getInGlobal("main");
 
         if(mainFunc == null) {
-           error.signal("Program must have a main function");            
+           error.signal("Program must have a main function");
         }
 
         return program;
@@ -70,13 +70,13 @@ public class Compiler {
 
     	if(isIdent) {
     		id = lexer.getStringValue();
-            
+
             Object fu = symbolTable.getInGlobal(id);
 
             if (fu != null) {
                 error.signal("identifier " + id + " already exists");
             }
-            
+
             f = new Function(id);
             currentFunction = f;
 
@@ -114,7 +114,9 @@ public class Compiler {
     	}
 		f.setReturnType(type);
         f.setStatList(statList());
-
+				if(type!=null && f.statList.hasReturn == false){
+					error.signal("return statement expected");
+				}
         symbolTable.removeLocalIdent();
 
     	return f;
@@ -195,10 +197,10 @@ public class Compiler {
     private StatementList statList() {
         //System.out.println("statList");
         // StatList ::= "{" {Stat} "}"
-
+				Boolean flag=false;
         Symbol tkn;
         ArrayList<Statement> v = new ArrayList<Statement>();
-
+				Statement stataux;
         if (lexer.token != Symbol.OPENBRACE) {
             error.signal("{ expected");
         } else {
@@ -209,23 +211,27 @@ public class Compiler {
                 lexer.nextToken();
             }
             if(lexer.token != Symbol.CLOSEBRACE){
-                v.add(stat());
+								stataux = stat();
+								if (stataux instanceof ReturnStatement){
+									flag=true;
+								}
+                v.add(stataux);
             }
-
         }
         if (tkn != Symbol.CLOSEBRACE) {
             error.signal("} expected");
         } else {
             lexer.nextToken();
         }
-
-        return new StatementList(v);
+				StatementList s = new StatementList(v);
+				if (flag) s.setHasReturn();
+        return s;
     }
 
     private Statement stat() {
         //System.out.println("stat");
         // Stat ::= AssignExprStat| ReturnStat | VarDecStat | IfStat | WhileStat
-        
+
         switch (lexer.token) {
             case IDENT :
                 return assignExprStat();
@@ -261,6 +267,10 @@ public class Compiler {
         // AssignExprStat ::= Expr [ "=" Expr] ";"
         Expr left = expr();
         Expr right = null;
+				if (left.getExprName() == "FuncCall"){
+					if(left.getType()!=null)//se a função for tipada retorna true
+						error.signal("typed function needs variable to be assigned to");
+				}
 
         if (lexer.token == Symbol.ATRIB) {
 
@@ -293,6 +303,7 @@ public class Compiler {
         lexer.nextToken();
         Expr e = expr();
 
+				System.out.println("aqiu caraip" + lexer.token.toString());
         StatementList thenPart = statList();
 
         StatementList elsePart = null;
@@ -358,10 +369,11 @@ public class Compiler {
         lexer.nextToken();
         Expr e = expr();
 
-        if (e.getType().getTypeName() != currentFunction.getType().getTypeName()) {
-            error.signal("Incompatible return type in function " + currentFunction.getId());
-        }
-
+				if (currentFunction.getType()!=null){
+        	if (e.getType().getTypeName() != currentFunction.getType().getTypeName()) {
+            	error.signal("Incompatible return type in function " + currentFunction.getId());
+        	}
+				}
         if (lexer.token != Symbol.SEMICOLON) {
             error.signal("; expected");
         }
@@ -428,7 +440,6 @@ public class Compiler {
 
             left = new CompositeExpr(left, op, right);
         }
-
         return left;
     }
 
@@ -626,7 +637,7 @@ public class Compiler {
 
             lexer.nextToken();
         }
-        
+
         return new FuncCall(f, exprList);
     }
 
@@ -644,7 +655,7 @@ public class Compiler {
 
             return funcCall(name);
         }
-        
+
         // Se for exprId
         Variable id = (Variable) symbolTable.getInLocal(name);
         if (id == null){

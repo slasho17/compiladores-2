@@ -1,0 +1,16 @@
+function fatorial(n:Int) -> Int{
+  if n <= 0{
+    return 1;
+  }
+  else{
+    return n*fatorial(n-1);
+  }
+}
+
+
+function main {
+  var fat:Int;
+  fat = fatorial(5)*2*fatorial(3);
+
+  writeln("teste sem erro");
+}

@@ -1,0 +1,11 @@
+function div{
+  var x:Int;
+  var y:Int;
+  var result:Int;
+
+  result = x / y;
+}
+
+function main{
+  2 = div();
+}

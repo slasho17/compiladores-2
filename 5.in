@@ -1,0 +1,10 @@
+function soma{
+  var x:Int;
+  var y:String;
+  var if:String;
+}
+
+function main{
+  var i:Boolean;
+  i = false;
+}

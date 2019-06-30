@@ -1,0 +1,3 @@
+function main(){
+  writeln("Main com parametro - Erro");
+}
